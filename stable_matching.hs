@@ -2,13 +2,13 @@ import Data.List
 
 
 
-type Person = Int
+type Person = Integer
 type Women  = [Person]
 type Men    = [Person]
 type Pref   = [Person]
 type Matching = (Person, Person)
 
-n :: Int
+n :: Integer
 n = 3
 
 -- should introduce -1 as dummy man
@@ -37,7 +37,7 @@ morePref (h:tl) a b
 
 --  find out whether a woman would want to deviate 
 wouldCheat :: [Pref] -> Person -> Matching -> Bool
-wouldCheat prefs  person (m, w) = morePref (prefs !! w) m person == person
+wouldCheat prefs  person (m, w) = morePref (prefs !! (fromIntegral (w-1))) m person == person
 
 
 -- some dude wants to see which girls are in his league
@@ -65,7 +65,7 @@ unmatchedMen l = [1..n] \\ ( matchedMen l )
 -- it should be feasible
 feasibleFavorite ::  Person -> [Pref] -> [Pref] -> [Matching] -> Person
 feasibleFavorite man menPrefs womenPrefs matchings = 
-  favorite (menPrefs !! man) list
+  favorite (menPrefs !! (fromInteger man - 1)) list
   where list = inTheLeague man womenPrefs matchings
         favorite :: Pref -> [Person] -> Person
         favorite (h:tl) list = if (elem h list)
@@ -86,8 +86,12 @@ propose man menPrefs womenPrefs matchings = newMatching
 
 
 -- this is the function that keeps 
-match :: [Matching] -> [Matching]
-
+match :: [Pref] -> [Pref] -> [Matching] -> [Matching]
+match menPrefs womenPrefs matchings = if (null losers)
+                  then matchings -- we are done here
+                  else match menPrefs womenPrefs
+                       $ propose (head losers) menPrefs womenPrefs matchings 
+  where losers = unmatchedMen matchings
 
 
 
